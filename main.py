@@ -1,42 +1,61 @@
 import sys
 
 
-def main(argv):
+def main(argv: list[str]) -> int:
     """
         main function of the program, it takes 2 scores and prints the result
             to the terminal
+
+        Arguments:
+            argv [list[str]] - list of commandline args to run the program with;
     """
 
-    # match len(argv):
-    #     case 4 if (argv[0] == "-p1" and argv[2] == "-p2"):
-    #         try:
-    #             p1 = int(argv[1])
-    #             p2 = int(argv[3])
-    #         except ValueError:
-    #             usage()
-    #     case _:
-    #         usage()
+    # main match switch
+    match len(argv):
 
-    # a = "1 - 1"
-    # b = a.split("-")
+        # if file arg given pare output line by line.
+        case 2 if (argv[0] == "-f" or argv[0] == "--file"):
+            try:
+                with open(argv[1], "r") as file:
+                    for line in file:
+                        parse_input(line.rstrip())
+            except FileNotFoundError:
+                usage(True)
 
-    # print(b)
-    # print(int(b[0]), int(b[1]))
+        # print help if requested
+        case 1 if (argv[0] == "-h" or argv[0] == "--help"):
+            usage()
 
-    # print(get_score(1, "2"))
+        # else run main loop
+        case 0:
+            while True:
 
-    while True:
-        input_str = input("What is the current score? \n")
+                # ask score
+                input_str = input("What is the current score? \n")
 
-        if "cancel" in input_str or "quit" in input_str:
-            break
+                # if cancel or quit is prompted stop
+                if "cancel" in input_str or "quit" in input_str:
+                    break
 
-        try:
-            print(get_score(*input_str.split("-")))
-        except (ValueError, TypeError):
-            pass
+                parse_input(input_str.rstrip())
+        case _:
+            usage(True)
 
     return 0
+
+
+def parse_input(in_str: str):
+    """
+        parse an input string including error handling
+
+        Arguments:
+            in_str [str] - string to parse;
+    """
+
+    try:
+        print(f"{in_str} -> {get_score(*in_str.split("-"))}")
+    except (ValueError, TypeError):
+        print(f"{in_str} is an invalid input")
 
 
 def get_score(player1: int, player2: int) -> str:
@@ -46,6 +65,8 @@ def get_score(player1: int, player2: int) -> str:
         Arguments:
             player1 [int] - score for player 1;
             player2 [int] - score for player 2;
+
+        returns the score string
     """
 
     # make sure the variables are the right type
@@ -79,16 +100,20 @@ def get_score(player1: int, player2: int) -> str:
                    f"\t{scores[player1]} - {scores[player2]}"
 
 
-def usage():
+def usage(exit_bool: bool = False):
     """
         usage print of the code and exit out.
+
+        Arguments:
+            exit_bool [bool] - should it exit the program
     """
 
-    # usage print statement
-    print(f"\n{sys.argv[0]} -p1 [score] -p2 [score]\n"
-          "\t-p1\t- score of player 1\n"
-          "\t-p2\t- score of player 2\n")
-    exit()
+    print(f"\nUsage of the program is: {sys.argv[0]} [arg] <arg parameters>\n"
+          "\t-f or --file\t- file to open follow with valid file path;\n"
+          "\t-h or --help\t- print this;\n")
+
+    if exit_bool:
+        exit()
 
 
 if __name__ == "__main__":
